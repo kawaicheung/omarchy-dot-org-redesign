@@ -97,13 +97,13 @@ body {
   box-shadow: 0 30px 60px -20px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255, 255, 255, 0.02);
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
 }
 
 .window-content {
   display: flex;
   flex-direction: column;
-  align-items: center;
+  align-items: flex-start;
 }
 
 .logo {
@@ -125,6 +125,36 @@ body {
   color: var(--text);
   text-decoration: underline;
   font-weight: 600;
+}
+
+.cli-line {
+  margin: 0.9em 0 0;
+  display: inline-block;
+  overflow: hidden;
+  width: 53ch;
+  max-width: 100%;
+  white-space: nowrap;
+  text-align: left;
+  font-size: 0.95em;
+  color: var(--logo-green);
+  border-right: 2px solid var(--logo-green);
+  animation:
+    cli-type 2.6s steps(53, end) forwards,
+    cli-caret 0.75s step-end infinite;
+}
+
+@keyframes cli-type {
+  from { width: 0; }
+  to { width: 53ch; }
+}
+
+@keyframes cli-caret {
+  50% { border-color: transparent; }
+}
+
+.cli-line__link {
+  color: var(--logo-green);
+  text-decoration: underline;
 }
 
 /* ---------- videos ---------- */
@@ -273,4 +303,35 @@ body {
 .launcher__label {
   font-size: 15px;
   letter-spacing: 0.01em;
+}
+
+/* ---------- entrance animation ---------- */
+
+@keyframes pop-in {
+  from {
+    opacity: 0;
+    transform: scale(0.75);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.window--left,
+.window--right,
+.launcher__panel {
+  animation: pop-in 0.28s cubic-bezier(0.17, 0.89, 0.32, 1.49) both;
+}
+
+.window--left {
+  animation-delay: 1s;
+}
+
+.window--right {
+  animation-delay: 1.15s;
+}
+
+.launcher__panel {
+  animation-delay: 1.55s;
 }

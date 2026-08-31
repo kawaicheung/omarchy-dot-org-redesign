@@ -537,6 +537,60 @@ body {
   border-radius: 2px;
 }
 
+.right-panel--player {
+  align-items: center;
+  justify-content: center;
+  padding: 8cqw;
+  position: relative;
+}
+
+.video-player__frame-wrap {
+  width: 100%;
+  max-width: 100%;
+  aspect-ratio: 16 / 9;
+  box-sizing: border-box;
+  padding: 1px;
+  border: 2px solid var(--panel-border);
+  border-radius: 2px;
+}
+
+.video-player__frame-wrap iframe {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border: 0;
+  border-radius: 2px;
+}
+
+.video-player__close {
+  position: absolute;
+  top: calc(var(--gap) * 1.5);
+  right: calc(var(--gap) * 1.5);
+  z-index: 6;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  background: transparent;
+  border: 1px solid var(--panel-border);
+  border-radius: 2px;
+  color: var(--text-dim);
+  cursor: pointer;
+}
+
+.video-player__close svg {
+  width: 16px;
+  height: 16px;
+}
+
+.video-player__close:hover {
+  color: var(--logo-green);
+  border-color: var(--logo-green);
+}
+
+
 .video-thumb__title {
   font-size: 11px;
   line-height: 1.3;

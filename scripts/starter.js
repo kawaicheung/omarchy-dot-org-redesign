@@ -38,12 +38,19 @@ function initStarter() {
     const next = document.querySelector(`.right-panel[data-panel="${id}"]`);
     if (!next || next === current) return;
 
-    document.querySelectorAll('[data-panel-target]').forEach((trigger) => {
-      trigger.classList.toggle('is-selected', trigger.dataset.panelTarget === id);
-    });
+    if (current && current.dataset.panel === 'player') {
+      const wrap = document.getElementById('video-player-frame-wrap');
+      if (wrap) wrap.replaceChildren();
+    }
+
+    if (id !== 'player') {
+      document.querySelectorAll('[data-panel-target]').forEach((trigger) => {
+        trigger.classList.toggle('is-selected', trigger.dataset.panelTarget === id);
+      });
+    }
 
     const launcher = document.querySelector('.launcher');
-    if (launcher) launcher.classList.toggle('is-shifted', id === 'youtube');
+    if (launcher) launcher.classList.toggle('is-shifted', id === 'youtube' || id === 'player');
 
     function enterNext() {
       next.classList.add('is-active', 'is-entering');
@@ -72,6 +79,36 @@ function initStarter() {
       showRightPanel(trigger.dataset.panelTarget);
     });
   });
+
+  document.querySelectorAll('.video-thumb').forEach((thumb) => {
+    thumb.addEventListener('click', (e) => {
+      // YouTube rejects file:// embeds with Error 153, so local-file previews
+      // fall back to the normal watch page. Hosted pages play inline.
+      if (window.location.protocol === 'file:') return;
+      e.preventDefault();
+      const id = thumb.dataset.videoId;
+      const title = thumb.querySelector('.video-thumb__title');
+      const wrap = document.getElementById('video-player-frame-wrap');
+      if (!id || !wrap) return;
+
+      const iframe = document.createElement('iframe');
+      iframe.title = title ? title.textContent : 'Video';
+      iframe.src = `https://www.youtube-nocookie.com/embed/${encodeURIComponent(id)}?autoplay=1&rel=0`;
+      iframe.allow =
+        'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share';
+      iframe.referrerPolicy = 'strict-origin-when-cross-origin';
+      iframe.allowFullscreen = true;
+
+      wrap.replaceChildren(iframe);
+      showRightPanel('player');
+    });
+  });
+
+  const playerPanel = document.querySelector('.right-panel--player');
+  if (playerPanel) {
+    playerPanel.addEventListener('click', () => showRightPanel('youtube'));
+  }
+
 
   const launcherItems = Array.from(document.querySelectorAll('.launcher__item'));
   let menuIndex = Math.max(0, launcherItems.findIndex((item) => item.classList.contains('is-selected')));

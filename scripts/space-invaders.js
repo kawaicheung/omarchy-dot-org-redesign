@@ -26,10 +26,17 @@
       '</svg>';
     layer.appendChild(ship);
 
+    const ua = navigator.userAgent || '';
+    const downloadLabel = /Mac/.test(ua)
+      ? "I'm done with MacOS"
+      : /Win/.test(ua)
+      ? "I'm done with Windows"
+      : 'Download ISO (5.6GB)';
+
     const downloadBtn = document.createElement('a');
     downloadBtn.className = 'download-btn';
     downloadBtn.href = 'https://iso.omarchy.org/omarchy-4.0.1.iso';
-    downloadBtn.textContent = 'Download ISO (5.6GB)';
+    downloadBtn.textContent = downloadLabel;
     container.appendChild(downloadBtn);
 
     const downloadStatus = document.querySelector('.download-status');

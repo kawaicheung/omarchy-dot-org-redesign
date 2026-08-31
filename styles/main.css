@@ -436,6 +436,20 @@ body {
   text-decoration: underline;
 }
 
+.right-callout__link[data-download-cta] {
+  display: inline-block;
+  background: var(--logo-green);
+  color: #10111a;
+  padding: 1px 6px;
+  border-radius: 2px;
+  text-decoration: none;
+  transition: transform 0.15s ease;
+}
+
+.right-callout__link[data-download-cta]:hover {
+  transform: scale(1.1);
+}
+
 .right-panel--videos {
   align-items: stretch;
   justify-content: center;

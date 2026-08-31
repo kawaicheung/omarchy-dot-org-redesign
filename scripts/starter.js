@@ -98,6 +98,10 @@ function initStarter() {
     } else if (e.code === 'Enter') {
       e.preventDefault();
       launcherItems[menuIndex].click();
+    } else if (e.code === 'Escape') {
+      e.preventDefault();
+      showRightPanel('movement');
+      focusMenuItem(0);
     }
   });
 }

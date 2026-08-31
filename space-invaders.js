@@ -30,10 +30,37 @@
     downloadBtn.textContent = 'Download ISO (5.6GB)';
     container.appendChild(downloadBtn);
 
+    const downloadStatus = document.querySelector('.download-status');
+
+    function explodeDownloadButton() {
+      const btnRect = downloadBtn.getBoundingClientRect();
+      const layerRect = layer.getBoundingClientRect();
+      const cx = btnRect.left - layerRect.left + btnRect.width / 2;
+      const cy = btnRect.top - layerRect.top + btnRect.height / 2;
+
+      const shardCount = 10;
+      for (let i = 0; i < shardCount; i++) {
+        const shard = document.createElement('div');
+        shard.className = 'explosion-shard';
+        const angle = (Math.PI * 2 * i) / shardCount + Math.random() * 0.6;
+        const dist = 24 + Math.random() * 28;
+        shard.style.left = cx + 'px';
+        shard.style.top = cy + 'px';
+        shard.style.setProperty('--dx', (Math.cos(angle) * dist).toFixed(1) + 'px');
+        shard.style.setProperty('--dy', (Math.sin(angle) * dist).toFixed(1) + 'px');
+        layer.appendChild(shard);
+        shard.addEventListener('animationend', () => shard.remove(), { once: true });
+      }
+
+      downloadBtn.classList.add('download-btn--exploding');
+      downloadBtn.addEventListener('animationend', () => downloadBtn.remove(), { once: true });
+    }
+
     downloadBtn.addEventListener('click', () => {
       if (downloadBtn.dataset.downloading === 'true') return;
       downloadBtn.dataset.downloading = 'true';
-      downloadBtn.textContent = 'Downloading...';
+      if (downloadStatus) downloadStatus.classList.add('is-visible');
+      explodeDownloadButton();
     });
 
     let grid = logo.textContent.split('\n').map((line) => line.split(''));
@@ -150,30 +177,33 @@
       if (moveRight) shipX += shipSpeed * dt;
       updateShipPosition();
 
-      btnX += btnVX * dt;
-      btnY += btnVY * dt;
-      if (btnX <= 0) {
-        btnX = 0;
-        btnVX = Math.abs(btnVX);
-      } else if (btnX + btnW >= metrics.layerWidth) {
-        btnX = metrics.layerWidth - btnW;
-        btnVX = -Math.abs(btnVX);
+      const collected = downloadBtn.dataset.downloading === 'true';
+      if (!collected) {
+        btnX += btnVX * dt;
+        btnY += btnVY * dt;
+        if (btnX <= 0) {
+          btnX = 0;
+          btnVX = Math.abs(btnVX);
+        } else if (btnX + btnW >= metrics.layerWidth) {
+          btnX = metrics.layerWidth - btnW;
+          btnVX = -Math.abs(btnVX);
+        }
+        if (btnY <= 0) {
+          btnY = 0;
+          btnVY = Math.abs(btnVY);
+        } else if (btnY + btnH >= metrics.btnFloorY) {
+          btnY = metrics.btnFloorY - btnH;
+          btnVY = -Math.abs(btnVY);
+        }
+        positionBtn();
       }
-      if (btnY <= 0) {
-        btnY = 0;
-        btnVY = Math.abs(btnVY);
-      } else if (btnY + btnH >= metrics.btnFloorY) {
-        btnY = metrics.btnFloorY - btnH;
-        btnVY = -Math.abs(btnVY);
-      }
-      positionBtn();
 
       let dirty = false;
       for (let i = beams.length - 1; i >= 0; i--) {
         const beam = beams[i];
         beam.y -= beamSpeed * dt;
 
-        if (beam.x >= btnX && beam.x <= btnX + btnW && beam.y >= btnY && beam.y <= btnY + btnH) {
+        if (!collected && beam.x >= btnX && beam.x <= btnX + btnW && beam.y >= btnY && beam.y <= btnY + btnH) {
           downloadBtn.click();
           beam.el.remove();
           beams.splice(i, 1);

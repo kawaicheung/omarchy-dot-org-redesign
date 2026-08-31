@@ -654,10 +654,28 @@ body {
 }
 
 .launcher__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   padding: 0 24px 14px;
   font-size: 14px;
   color: var(--text-dim);
   flex-shrink: 0;
+}
+
+.launcher__header-hint {
+  display: flex;
+  gap: 4px;
+  font-size: 11px;
+}
+
+.launcher__header-hint kbd {
+  font-family: inherit;
+  font-size: inherit;
+  color: inherit;
+  border: 1px solid var(--panel-border);
+  border-radius: 2px;
+  padding: 1px 5px;
 }
 
 .launcher__list {
@@ -685,6 +703,10 @@ body {
 
 .launcher__item.is-selected {
   background: rgba(143, 163, 232, 0.15);
+}
+
+.launcher__item.is-focused {
+  background: rgba(143, 163, 232, 0.3);
 }
 
 .launcher__item:hover {

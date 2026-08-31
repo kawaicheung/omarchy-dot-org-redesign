@@ -63,6 +63,15 @@
       explodeDownloadButton();
     });
 
+    const downloadCta = document.querySelector('[data-download-cta]');
+    if (downloadCta) {
+      downloadCta.addEventListener('click', (e) => {
+        if (e.button !== 0 || e.metaKey || e.ctrlKey) return;
+        e.preventDefault();
+        downloadBtn.click();
+      });
+    }
+
     let grid = logo.textContent.split('\n').map((line) => line.split(''));
     const rows = grid.length;
     const cols = grid.reduce((max, line) => Math.max(max, line.length), 0);

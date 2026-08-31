@@ -72,6 +72,34 @@ function initStarter() {
       showRightPanel(trigger.dataset.panelTarget);
     });
   });
+
+  const launcherItems = Array.from(document.querySelectorAll('.launcher__item'));
+  let menuIndex = Math.max(0, launcherItems.findIndex((item) => item.classList.contains('is-selected')));
+
+  function focusMenuItem(index) {
+    menuIndex = (index + launcherItems.length) % launcherItems.length;
+    launcherItems.forEach((item, i) => {
+      item.classList.toggle('is-focused', i === menuIndex);
+    });
+  }
+  focusMenuItem(menuIndex);
+
+  launcherItems.forEach((item, i) => {
+    item.addEventListener('click', () => focusMenuItem(i));
+  });
+
+  window.addEventListener('keydown', (e) => {
+    if (e.code === 'ArrowDown') {
+      e.preventDefault();
+      focusMenuItem(menuIndex + 1);
+    } else if (e.code === 'ArrowUp') {
+      e.preventDefault();
+      focusMenuItem(menuIndex - 1);
+    } else if (e.code === 'Enter') {
+      e.preventDefault();
+      launcherItems[menuIndex].click();
+    }
+  });
 }
 
 if (document.readyState === 'loading') {

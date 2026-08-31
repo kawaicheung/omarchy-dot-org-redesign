@@ -12,9 +12,12 @@
   --wallpaper: url('../images/backgrounds/1-quattro.webp');
   --launcher-width: 264px;
 
+  --font-system: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+
   /* ---------- entrance animation timing ---------- */
   --t-window-left: 0.8s;
-  --t-window-right: 1.5s;
+  --t-window-right: 0.9s;
   --t-menu: 1.7s;
   --t-footer-left: 1.8s;
   --t-footer-center: 1.9s;
@@ -34,7 +37,7 @@ html, body {
 body {
   margin: 0;
   overflow: hidden;
-  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-family: var(--font-mono);
   color: var(--text);
   background: #0b0c14 var(--wallpaper) center / cover no-repeat;
 }
@@ -141,6 +144,7 @@ body {
 .footer__link {
   color: var(--text-dim);
   text-decoration: none;
+  font-family: var(--font-system);
 }
 
 .footer__link:hover {
@@ -194,7 +198,7 @@ body {
   right: calc(var(--gap) * 1.5);
   z-index: 6;
   padding: 8px 14px;
-  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-family: var(--font-mono);
   font-size: 13px;
   color: var(--logo-green);
   background: transparent;
@@ -263,7 +267,7 @@ body {
   position: absolute;
   z-index: 4;
   padding: 8px 14px;
-  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-family: var(--font-mono);
   font-size: 13px;
   color: var(--logo-green);
   background: transparent;
@@ -359,8 +363,11 @@ body {
   margin: 0;
   max-width: 100%;
   text-align: right;
+  text-wrap: balance;
   color: var(--logo-green);
-  font-size: clamp(12px, 1.56vw, 22px);
+  font-size: clamp(18px, 2.25vw, 33px);
+  font-family: var(--font-system);
+  font-weight: 700;
 }
 
 .right-panel {
@@ -448,11 +455,12 @@ body {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
+  gap: 0.3em;
 }
 
 .logo {
   margin: 0;
-  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-family: var(--font-mono);
   font-size: clamp(4px, 0.55vw, 8px);
   line-height: 1.25;
   color: var(--logo-green);
@@ -461,9 +469,10 @@ body {
 
 .tagline {
   margin: 0;
-  letter-spacing: -0.02em;
   font-size: clamp(12px, 1.56vw, 22px);
+  font-weight: 500;
   color: var(--accent);
+  font-family: var(--font-system);
 }
 
 

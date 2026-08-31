@@ -110,7 +110,7 @@
     measureBtn();
 
     let btnX = Math.random() * Math.max(0, metrics.layerWidth - btnW);
-    let btnY = Math.random() * Math.max(0, metrics.btnFloorY - btnH);
+    let btnY = 0;
     let btnVX = 90;
     let btnVY = 65;
 

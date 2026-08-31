@@ -274,7 +274,7 @@ body {
   font-family: var(--font-mono);
   font-size: 13px;
   color: var(--logo-green);
-  background: transparent;
+  background: rgba(0, 0, 0, 0.4);
   border: 2px solid var(--logo-green);
   border-radius: 2px;
   text-decoration: none;

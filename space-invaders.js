@@ -7,6 +7,7 @@
   function init() {
     const container = document.querySelector('.window--left');
     const logo = document.querySelector('.logo');
+    const hint = document.querySelector('.controls-hint');
     if (!container || !logo) return;
 
     const layer = document.createElement('div');
@@ -22,6 +23,18 @@
       '<rect x="0" y="3" width="9" height="3" fill="currentColor"/>' +
       '</svg>';
     layer.appendChild(ship);
+
+    const downloadBtn = document.createElement('a');
+    downloadBtn.className = 'download-btn';
+    downloadBtn.href = 'https://iso.omarchy.org/omarchy-4.0.1.iso';
+    downloadBtn.textContent = 'Download ISO (5.6GB)';
+    container.appendChild(downloadBtn);
+
+    downloadBtn.addEventListener('click', () => {
+      if (downloadBtn.dataset.downloading === 'true') return;
+      downloadBtn.dataset.downloading = 'true';
+      downloadBtn.textContent = 'Downloading...';
+    });
 
     let grid = logo.textContent.split('\n').map((line) => line.split(''));
     const rows = grid.length;
@@ -53,11 +66,47 @@
       metrics.logoBottom = metrics.logoTop + logoRect.height;
       metrics.layerWidth = layerRect.width;
       metrics.layerHeight = layerRect.height;
+      metrics.floorY = hint
+        ? hint.getBoundingClientRect().top - layerRect.top - 6
+        : metrics.layerHeight;
+      metrics.btnFloorY = metrics.floorY / 2;
     }
     measure();
-    window.addEventListener('resize', measure);
 
-    const shipY = () => metrics.layerHeight - 18;
+    let btnW = 0;
+    let btnH = 0;
+    function measureBtn() {
+      const rect = downloadBtn.getBoundingClientRect();
+      btnW = rect.width;
+      btnH = rect.height;
+    }
+    measureBtn();
+
+    let btnX = Math.random() * Math.max(0, metrics.layerWidth - btnW);
+    let btnY = Math.random() * Math.max(0, metrics.btnFloorY - btnH);
+    let btnVX = 90;
+    let btnVY = 65;
+
+    function positionBtn() {
+      downloadBtn.style.left = btnX + 'px';
+      downloadBtn.style.top = btnY + 'px';
+    }
+    positionBtn();
+
+    window.addEventListener('resize', () => {
+      measure();
+      measureBtn();
+      btnX = Math.min(btnX, Math.max(0, metrics.layerWidth - btnW));
+      btnY = Math.min(btnY, Math.max(0, metrics.btnFloorY - btnH));
+    });
+
+    container.addEventListener('animationend', (e) => {
+      if (e.target !== container) return;
+      measure();
+      measureBtn();
+    }, { once: true });
+
+    const shipY = () => metrics.floorY - 8;
     let shipX = 0;
     const shipSpeed = 280;
     let moveLeft = false;
@@ -81,13 +130,12 @@
       if (beams.length >= 6) return;
       lastShotTime = now;
 
-      const col = Math.round((shipX - metrics.logoLeft) / metrics.charW);
       const beamEl = document.createElement('div');
       beamEl.className = 'invaders-beam';
       layer.appendChild(beamEl);
       beams.push({
         el: beamEl,
-        col: Math.max(0, Math.min(cols - 1, col)),
+        x: shipX,
         y: shipY(),
       });
     }
@@ -102,10 +150,35 @@
       if (moveRight) shipX += shipSpeed * dt;
       updateShipPosition();
 
+      btnX += btnVX * dt;
+      btnY += btnVY * dt;
+      if (btnX <= 0) {
+        btnX = 0;
+        btnVX = Math.abs(btnVX);
+      } else if (btnX + btnW >= metrics.layerWidth) {
+        btnX = metrics.layerWidth - btnW;
+        btnVX = -Math.abs(btnVX);
+      }
+      if (btnY <= 0) {
+        btnY = 0;
+        btnVY = Math.abs(btnVY);
+      } else if (btnY + btnH >= metrics.btnFloorY) {
+        btnY = metrics.btnFloorY - btnH;
+        btnVY = -Math.abs(btnVY);
+      }
+      positionBtn();
+
       let dirty = false;
       for (let i = beams.length - 1; i >= 0; i--) {
         const beam = beams[i];
         beam.y -= beamSpeed * dt;
+
+        if (beam.x >= btnX && beam.x <= btnX + btnW && beam.y >= btnY && beam.y <= btnY + btnH) {
+          downloadBtn.click();
+          beam.el.remove();
+          beams.splice(i, 1);
+          continue;
+        }
 
         if (beam.y <= -20) {
           beam.el.remove();
@@ -115,12 +188,13 @@
 
         if (beam.y <= metrics.logoBottom) {
           const row = Math.floor((beam.y - metrics.logoTop) / metrics.charH);
-          if (row >= 0 && row < rows) {
-            if (destroyAt(row, beam.col)) dirty = true;
+          const col = Math.floor((beam.x - metrics.logoLeft) / metrics.charW);
+          if (row >= 0 && row < rows && col >= 0 && col < cols) {
+            if (destroyAt(row, col)) dirty = true;
           }
         }
 
-        beam.el.style.left = beam.col * metrics.charW + metrics.logoLeft + metrics.charW / 2 + 'px';
+        beam.el.style.left = beam.x + 'px';
         beam.el.style.top = beam.y + 'px';
       }
       if (dirty) renderLogo();

@@ -5,6 +5,8 @@
   }
 
   function init() {
+    if (window.matchMedia('(max-width: 999px)').matches) return;
+
     const container = document.querySelector('.window--left');
     const logo = document.querySelector('.logo');
     const hint = document.querySelector('.controls-hint');

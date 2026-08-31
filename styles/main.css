@@ -11,6 +11,7 @@
   --logo-green: #9ece6a;
   --wallpaper: url('../images/backgrounds/1-quattro.webp');
   --launcher-width: 224px;
+  --min-width: 1000px;
 
   --font-system: 'Space Grotesk', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
   --font-mono: 'JetBrains Mono', ui-monospace, monospace;
@@ -49,6 +50,7 @@ body {
   top: 0;
   left: 0;
   right: 0;
+  min-width: var(--min-width);
   height: var(--topbar-h);
   display: flex;
   align-items: center;
@@ -95,6 +97,7 @@ body {
   left: var(--gap);
   right: var(--gap);
   bottom: calc(var(--footer-h) + var(--gap) * 2);
+  min-width: calc(var(--min-width) - var(--gap) * 2);
   display: flex;
   gap: var(--gap);
   z-index: 1;
@@ -107,6 +110,7 @@ body {
   left: 0;
   right: 0;
   bottom: var(--gap);
+  min-width: var(--min-width);
   height: var(--footer-h);
   display: flex;
   align-items: center;
@@ -356,7 +360,7 @@ body {
 }
 
 .window--left .window-inner {
-  padding-right: calc(var(--launcher-width) / 2 + var(--gap));
+  padding-right: calc(8cqw + var(--launcher-width) / 2 + var(--gap));
 }
 
 .right-text {
@@ -605,6 +609,7 @@ body {
 .launcher {
   position: fixed;
   inset: 0;
+  min-width: var(--min-width);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -614,7 +619,7 @@ body {
 }
 
 .launcher.is-shifted {
-  transform: translateX(calc(-1 * (var(--launcher-width) / 2 - var(--gap))));
+  transform: translateX(calc(-1 * (var(--launcher-width) / 2 - (2 * var(--gap)))));
 }
 
 .launcher__panel {

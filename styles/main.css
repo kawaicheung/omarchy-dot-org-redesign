@@ -394,10 +394,26 @@ body {
 }
 
 .right-panel--movement {
-  align-items: center;
-  justify-content: flex-end;
+  flex-direction: column;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 0.6em;
   padding: 8cqw;
   padding-left: calc(var(--launcher-width) / 2 + var(--gap));
+}
+
+.right-callout {
+  margin: 0;
+  max-width: 100%;
+  text-align: right;
+  color: var(--text-dim);
+  font-family: var(--font-mono);
+  font-size: 13px;
+}
+
+.right-callout__link {
+  color: var(--logo-green);
+  text-decoration: underline;
 }
 
 .right-panel--videos {

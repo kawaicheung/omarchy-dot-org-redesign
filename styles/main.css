@@ -12,16 +12,16 @@
   --wallpaper: url('../images/backgrounds/1-quattro.webp');
   --launcher-width: 224px;
 
-  --font-system: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  --font-system: 'Space Grotesk', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
   --font-mono: 'JetBrains Mono', ui-monospace, monospace;
 
   /* ---------- entrance animation timing ---------- */
   --t-window-left: 0.8s;
   --t-window-right: 0.9s;
-  --t-menu: 1.7s;
+  --t-menu: 1.4s;
   --t-footer-left: 1.8s;
-  --t-footer-center: 1.9s;
-  --t-footer-right: 2.0s;
+  --t-footer-center: 1.85s;
+  --t-footer-right: 1.9s;
   --t-cli-type: 2.2s;
   --t-invaders: 2.6s;
 }
@@ -443,6 +443,7 @@ body {
   display: flex;
   flex-direction: column;
   gap: 3cqw;
+  margin-bottom: 20vh;
 }
 
 .video-grid {
@@ -558,16 +559,18 @@ body {
 
 
 .cli-line {
+  position: relative;
   margin: 0.9em 0 0;
   display: flex;
   align-items: baseline;
-  gap: 0.6ch;
   font-size: 0.95em;
   color: var(--logo-green);
 }
 
 .cli-line__prompt {
-  flex-shrink: 0;
+  position: absolute;
+  left: -1.5ch;
+  bottom: 0;
 }
 
 .cli-line__typed {

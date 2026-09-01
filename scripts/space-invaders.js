@@ -336,15 +336,15 @@
     // Tune the formation here.
     const ALIEN_ROWS = 4;
     const ALIEN_COLS = 20;
-    const ALIEN_SIZE = 25.2;
-    const ALIEN_CELL = 32;
+    const ALIEN_SIZE = 42;
+    const ALIEN_CELL = 42;
     const ALIEN_STEP_DOWN = 12;
     const ALIEN_BASE_SPEED = 45;
     const ALIEN_MAX_SPEED = 225;
     const ALIEN_VALUE = 10;
-    const ALIEN_FIRE_MIN = 700;
-    const ALIEN_FIRE_MAX = 1800;
-    const ALIEN_BEAM_SPEED = 220;
+    const ALIEN_FIRE_MIN = 120;
+    const ALIEN_FIRE_MAX = 250;
+    const ALIEN_BEAM_SPEED = 320;
     const ALIEN_WALK_INTERVAL = 450;
     const ALIEN_SPAWN_DELAY = 2000;
 
@@ -381,7 +381,7 @@
       const statusRect = downloadStatus ? downloadStatus.getBoundingClientRect() : null;
 
       formationX = Math.max(0, (metrics.layerWidth - ALIEN_COLS * ALIEN_CELL) / 2);
-      formationY = statusRect ? statusRect.bottom - layerRect.top + 32 : 40;
+      formationY = statusRect ? statusRect.bottom - layerRect.top + 12 : 20;
       for (let row = 0; row < ALIEN_ROWS; row++) {
         const typeIndex = row % ALIEN_TYPES.length;
         for (let col = 0; col < ALIEN_COLS; col++) {

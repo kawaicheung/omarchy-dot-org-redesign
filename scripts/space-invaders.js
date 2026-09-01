@@ -381,7 +381,7 @@
       const statusRect = downloadStatus ? downloadStatus.getBoundingClientRect() : null;
 
       formationX = Math.max(0, (metrics.layerWidth - ALIEN_COLS * ALIEN_CELL) / 2);
-      formationY = statusRect ? statusRect.bottom - layerRect.top + 12 : 20;
+      formationY = statusRect ? statusRect.bottom - layerRect.top + 32 : 40;
       for (let row = 0; row < ALIEN_ROWS; row++) {
         const typeIndex = row % ALIEN_TYPES.length;
         for (let col = 0; col < ALIEN_COLS; col++) {

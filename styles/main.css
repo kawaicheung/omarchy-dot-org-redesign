@@ -278,6 +278,7 @@ body.is-downloading .desktop {
   flex: 1;
   container-type: inline-size;
   display: flex;
+  backdrop-filter: blur(12px) saturate(140%);
 
   &.left {
     position: relative;
@@ -297,7 +298,6 @@ body.is-downloading .desktop {
   background: var(--panel-bg);
   border: 2px solid var(--panel-border);
   border-radius: 2px;
-  backdrop-filter: blur(12px) saturate(140%);
   box-shadow: 0 30px 60px -20px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255, 255, 255, 0.02);
   transition: background 1s ease, border-color 1s ease 1s, border-radius 1s ease 1s, box-shadow 1s ease 1s;
 }
@@ -323,9 +323,8 @@ body.is-downloading .right-panel {
 
 .download-status {
   position: fixed;
-  top: calc(var(--topbar-h) + var(--gap));
+  top: calc(var(--topbar-h) + var(--gap) * 2);
   left: 50%;
-  margin-top: var(--gap);
   z-index: 6;
   padding: 8px 14px;
   font-family: var(--font-mono);
@@ -337,12 +336,12 @@ body.is-downloading .right-panel {
   white-space: nowrap;
   opacity: 0;
   pointer-events: none;
-  transform: translate(-50%, 0);
+  transform: translate(-50%, -12px);
   transition: opacity 0.6s ease 2.5s, transform 0.6s ease 2.5s;
 
   &.is-visible {
     opacity: 1;
-    transform: translate(-50%, 2vh);
+    transform: translate(-50%, 0);
   }
 
   .arrow {
@@ -443,7 +442,7 @@ body.is-round-over .invaders-alien-beam {
 
 .score {
   position: fixed;
-  top: calc(var(--topbar-h) + var(--gap));
+  top: calc(var(--topbar-h) + (var(--gap) * 2));
   right: calc(var(--gap) * 2);
   z-index: 6;
   display: flex;

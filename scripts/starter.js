@@ -14,7 +14,7 @@ function initStarter() {
   const taglines = [
     'The OS for people that like computers.',
     'The NeeDoh of operating systems.',
-    "It's pronounced OH-MA-CHEE mmmmk?",
+    "It's pronounced O-MAAH-CHEE, mmmmk?",
     'Linux for the semi-dorks.',
     "Tired of the two-OS system? It's time."
   ];

@@ -100,6 +100,20 @@
       return true;
     }
 
+    function overlapsLogo(x, y, w, h) {
+      const rowStart = Math.floor((y - metrics.logoTop) / metrics.charH);
+      const rowEnd = Math.floor((y + h - metrics.logoTop) / metrics.charH);
+      const colStart = Math.floor((x - metrics.logoLeft) / metrics.charW);
+      const colEnd = Math.floor((x + w - metrics.logoLeft) / metrics.charW);
+
+      for (let row = Math.max(0, rowStart); row <= Math.min(rows - 1, rowEnd); row++) {
+        for (let col = Math.max(0, colStart); col <= Math.min(cols - 1, colEnd); col++) {
+          if (grid[row][col] !== ' ') return true;
+        }
+      }
+      return false;
+    }
+
     const metrics = {};
     function measure() {
       const layerRect = layer.getBoundingClientRect();
@@ -197,22 +211,32 @@
 
       const collected = downloadBtn.dataset.downloading === 'true';
       if (!collected) {
-        btnX += btnVX * dt;
-        btnY += btnVY * dt;
-        if (btnX <= 0) {
+        const nextX = btnX + btnVX * dt;
+        if (nextX <= 0) {
           btnX = 0;
           btnVX = Math.abs(btnVX);
-        } else if (btnX + btnW >= metrics.layerWidth) {
+        } else if (nextX + btnW >= metrics.layerWidth) {
           btnX = metrics.layerWidth - btnW;
           btnVX = -Math.abs(btnVX);
+        } else if (overlapsLogo(nextX, btnY, btnW, btnH)) {
+          btnVX = -btnVX;
+        } else {
+          btnX = nextX;
         }
-        if (btnY <= 0) {
+
+        const nextY = btnY + btnVY * dt;
+        if (nextY <= 0) {
           btnY = 0;
           btnVY = Math.abs(btnVY);
-        } else if (btnY + btnH >= metrics.btnFloorY) {
+        } else if (nextY + btnH >= metrics.btnFloorY) {
           btnY = metrics.btnFloorY - btnH;
           btnVY = -Math.abs(btnVY);
+        } else if (overlapsLogo(btnX, nextY, btnW, btnH)) {
+          btnVY = -btnVY;
+        } else {
+          btnY = nextY;
         }
+
         positionBtn();
       }
 
@@ -238,7 +262,12 @@
           const row = Math.floor((beam.y - metrics.logoTop) / metrics.charH);
           const col = Math.floor((beam.x - metrics.logoLeft) / metrics.charW);
           if (row >= 0 && row < rows && col >= 0 && col < cols) {
-            if (destroyAt(row, col)) dirty = true;
+            if (destroyAt(row, col)) {
+              dirty = true;
+              beam.el.remove();
+              beams.splice(i, 1);
+              continue;
+            }
           }
         }
 

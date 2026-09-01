@@ -27,11 +27,7 @@
     layer.appendChild(ship);
 
     const ua = navigator.userAgent || '';
-    const downloadLabel = /Mac/.test(ua)
-      ? "I'm done with MacOS"
-      : /Win/.test(ua)
-      ? "I'm done with Windows"
-      : 'Download ISO (5.6GB)';
+    const downloadLabel = 'Omarchy ISO (5.6GB)';
 
     const downloadBtn = document.createElement('a');
     downloadBtn.className = 'download-btn';

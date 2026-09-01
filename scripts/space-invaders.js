@@ -7,7 +7,7 @@
   function init() {
     if (window.matchMedia('(max-width: 999px)').matches) return;
 
-    const container = document.querySelector('.window--left');
+    const container = document.querySelector('.window.left');
     const logo = document.querySelector('.logo');
     const hint = document.querySelector('.controls-hint');
     if (!container || !logo) return;
@@ -61,7 +61,7 @@
         shard.addEventListener('animationend', () => shard.remove(), { once: true });
       }
 
-      downloadBtn.classList.add('download-btn--exploding');
+      downloadBtn.classList.add('exploding');
       downloadBtn.addEventListener('animationend', () => downloadBtn.remove(), { once: true });
     }
 

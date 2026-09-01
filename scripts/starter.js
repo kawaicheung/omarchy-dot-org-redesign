@@ -89,7 +89,7 @@ function initStarter() {
       const id = thumb.dataset.videoId;
       if (!id) return;
 
-      const title = thumb.querySelector('.video-thumb__title');
+      const title = thumb.querySelector('.title');
       const iframe = document.createElement('iframe');
       iframe.title = title ? title.textContent : 'Video';
       iframe.src = `https://www.youtube-nocookie.com/embed/${encodeURIComponent(id)}?autoplay=1&rel=0`;
@@ -99,7 +99,7 @@ function initStarter() {
       iframe.allowFullscreen = true;
 
       if (thumb.hasAttribute('data-inline-embed')) {
-        iframe.className = 'video-thumb__embed';
+        iframe.className = 'embed';
         thumb.replaceWith(iframe);
         return;
       }
@@ -111,13 +111,13 @@ function initStarter() {
     });
   });
 
-  const playerPanel = document.querySelector('.right-panel--player');
+  const playerPanel = document.querySelector('.right-panel.player');
   if (playerPanel) {
     playerPanel.addEventListener('click', () => showRightPanel('youtube'));
   }
 
 
-  const launcherItems = Array.from(document.querySelectorAll('.launcher__item'));
+  const launcherItems = Array.from(document.querySelectorAll('.item'));
   let menuIndex = Math.max(0, launcherItems.findIndex((item) => item.classList.contains('is-selected')));
 
   function focusMenuItem(index) {

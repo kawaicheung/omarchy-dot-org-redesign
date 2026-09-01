@@ -342,7 +342,7 @@ body.is-downloading .right-panel {
 
   &.is-visible {
     opacity: 1;
-    transform: translate(-50%, 10vh);
+    transform: translate(-50%, 2vh);
   }
 
   .arrow {
@@ -389,9 +389,19 @@ body.is-downloading .right-panel {
   }
 }
 
-body.is-game-over .invaders-ship,
-body.is-game-over .score,
-body.is-game-over .asteroid {
+@keyframes pulse-win {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.15);
+  }
+}
+
+body.is-round-over .invaders-ship,
+body.is-round-over .score,
+body.is-round-over .alien,
+body.is-round-over .invaders-alien-beam {
   opacity: 0;
   transition: opacity 0.6s ease;
 }
@@ -405,34 +415,30 @@ body.is-game-over .asteroid {
   transform: translate(-50%, -100%);
 }
 
-.asteroid {
+.alien {
   position: absolute;
   display: grid;
-  grid-template-columns: repeat(4, var(--px-size));
-  grid-template-rows: repeat(4, var(--px-size));
+  grid-template-columns: repeat(14, 1.8px);
+  grid-template-rows: repeat(7, 3.6px);
   gap: 0;
-  transform: translate(-50%, -50%);
 
   .px {
     background: transparent;
 
     &.on {
       background: var(--logo-green);
-      box-shadow: 0 0 4px var(--logo-green);
+      box-shadow: 0 0 3px var(--logo-green);
     }
   }
+}
 
-  &.small {
-    --px-size: 2px;
-  }
-
-  &.medium {
-    --px-size: 3.5px;
-  }
-
-  &.large {
-    --px-size: 6px;
-  }
+.invaders-alien-beam {
+  position: absolute;
+  width: 2px;
+  height: 10px;
+  background: var(--logo-green);
+  box-shadow: 0 0 6px var(--logo-green);
+  transform: translate(-50%, -50%);
 }
 
 .score {
@@ -449,6 +455,10 @@ body.is-game-over .asteroid {
 
   &.is-visible {
     opacity: 1;
+  }
+
+  &.is-won {
+    animation: pulse-win 0.4s ease-in-out 3;
   }
 
   .digit {

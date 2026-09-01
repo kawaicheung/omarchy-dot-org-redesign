@@ -242,39 +242,193 @@
       });
     }
 
-    const ASTEROID_BITMAP = [
-      '0110',
-      '1111',
-      '1101',
-      '0110',
+    const ALIEN_TYPES = [
+      {
+        frames: [
+          [
+            '00001100110000',
+            '00000011000000',
+            '00111111111100',
+            '11110011001111',
+            '11111111111111',
+            '11001100110011',
+            '11000000000011',
+          ],
+          [
+            '00001100110000',
+            '00000011000000',
+            '00111111111100',
+            '11110011001111',
+            '11111111111111',
+            '00110011001100',
+            '00011111111000',
+          ],
+        ],
+      },
+      {
+        frames: [
+          [
+            '00010000001000',
+            '00001000010000',
+            '00011111111000',
+            '00111111111100',
+            '01111111111110',
+            '01011111110110',
+            '01100000000110',
+          ],
+          [
+            '00010000001000',
+            '10001000010001',
+            '10011111111001',
+            '10111111111101',
+            '01111111111110',
+            '00110000001100',
+            '00011000011000',
+          ],
+        ],
+      },
+      {
+        frames: [
+          [
+            '00000111100000',
+            '00011111111000',
+            '00111111111100',
+            '01110110110111',
+            '11111111111111',
+            '00011011011000',
+            '00110000001100',
+          ],
+          [
+            '00000111100000',
+            '00011111111000',
+            '00111111111100',
+            '01110110110111',
+            '11111111111111',
+            '00110000001100',
+            '01100000000110',
+          ],
+        ],
+      },
+      {
+        frames: [
+          [
+            '00011000011000',
+            '01111111111110',
+            '11110011001111',
+            '11111111111111',
+            '01111111111110',
+            '00110000001100',
+            '01100000000110',
+          ],
+          [
+            '00011000011000',
+            '01111111111110',
+            '11110011001111',
+            '11111111111111',
+            '01111111111110',
+            '01100000000110',
+            '00110000001100',
+          ],
+        ],
+      },
     ];
+
+    // Tune the formation here.
+    const ALIEN_ROWS = 4;
+    const ALIEN_COLS = 20;
+    const ALIEN_SIZE = 25.2;
+    const ALIEN_CELL = 32;
+    const ALIEN_STEP_DOWN = 12;
+    const ALIEN_BASE_SPEED = 45;
+    const ALIEN_MAX_SPEED = 225;
+    const ALIEN_VALUE = 10;
+    const ALIEN_FIRE_MIN = 700;
+    const ALIEN_FIRE_MAX = 1800;
+    const ALIEN_BEAM_SPEED = 220;
+    const ALIEN_WALK_INTERVAL = 450;
+    const ALIEN_SPAWN_DELAY = 2000;
 
     const shipRadius = 10;
-    const ASTEROID_TYPES = [
-      { size: 'small', px: 11, value: 10, speed: 150 },
-      { size: 'medium', px: 17, value: 20, speed: 105 },
-      { size: 'large', px: 27, value: 50, speed: 70 },
-    ];
-
-    const asteroids = [];
+    const aliens = [];
+    const alienBeams = [];
+    let alienDir = 1;
+    let formationX = 0;
+    let formationY = 20;
+    let formationSpawned = false;
+    let collectedSince = null;
+    let aliensAlive = 0;
     let gameOver = false;
-    let lastAsteroidTime = 0;
-    let nextAsteroidDelay = 900 + Math.random() * 900;
+    let gameWon = false;
+    let lastAlienShotTime = 0;
+    let nextAlienShotDelay = ALIEN_FIRE_MIN + Math.random() * (ALIEN_FIRE_MAX - ALIEN_FIRE_MIN);
+    let walkFrame = 0;
+    let lastWalkTime = 0;
 
-    function spawnAsteroid(now) {
-      const type = ASTEROID_TYPES[Math.floor(Math.random() * ASTEROID_TYPES.length)];
-      const el = buildPixelGrid('asteroid ' + type.size, 4, 4, ASTEROID_BITMAP);
-      layer.appendChild(el);
-      asteroids.push({
-        el,
-        x: type.px / 2 + Math.random() * Math.max(0, metrics.layerWidth - type.px),
-        y: -type.px,
-        radius: type.px / 2,
-        value: type.value,
-        speed: type.speed,
-      });
-      lastAsteroidTime = now;
-      nextAsteroidDelay = 900 + Math.random() * 900;
+    function applyBitmap(el, cols, rows, bitmap) {
+      const cells = el.children;
+      let i = 0;
+      for (let row = 0; row < rows; row++) {
+        for (let col = 0; col < cols; col++) {
+          const on = bitmap[row][col] !== ' ' && bitmap[row][col] !== '0';
+          cells[i].classList.toggle('on', on);
+          i++;
+        }
+      }
+    }
+
+    function spawnFormation() {
+      const layerRect = layer.getBoundingClientRect();
+      const statusRect = downloadStatus ? downloadStatus.getBoundingClientRect() : null;
+
+      formationX = Math.max(0, (metrics.layerWidth - ALIEN_COLS * ALIEN_CELL) / 2);
+      formationY = statusRect ? statusRect.bottom - layerRect.top + 12 : 20;
+      for (let row = 0; row < ALIEN_ROWS; row++) {
+        const typeIndex = row % ALIEN_TYPES.length;
+        for (let col = 0; col < ALIEN_COLS; col++) {
+          const el = buildPixelGrid('alien', 14, 7, ALIEN_TYPES[typeIndex].frames[0]);
+          layer.appendChild(el);
+          aliens.push({ el, row, col, typeIndex, alive: true });
+        }
+      }
+      aliensAlive = ALIEN_ROWS * ALIEN_COLS;
+      formationSpawned = true;
+    }
+
+    function positionAliens() {
+      for (let i = 0; i < aliens.length; i++) {
+        const alien = aliens[i];
+        if (!alien.alive) continue;
+        alien.el.style.left = formationX + alien.col * ALIEN_CELL + 'px';
+        alien.el.style.top = formationY + alien.row * ALIEN_CELL + 'px';
+      }
+    }
+
+    function walkAliens(frame) {
+      for (let i = 0; i < aliens.length; i++) {
+        const alien = aliens[i];
+        if (!alien.alive) continue;
+        applyBitmap(alien.el, 14, 7, ALIEN_TYPES[alien.typeIndex].frames[frame]);
+      }
+    }
+
+    function alienCenter(alien) {
+      return {
+        x: formationX + alien.col * ALIEN_CELL + ALIEN_SIZE / 2,
+        y: formationY + alien.row * ALIEN_CELL + ALIEN_SIZE / 2,
+      };
+    }
+
+    function triggerGameOver() {
+      if (gameOver) return;
+      gameOver = true;
+      ship.classList.add('is-hit');
+      setTimeout(() => document.body.classList.add('is-round-over'), 900);
+    }
+
+    function triggerWin() {
+      gameWon = true;
+      scoreEl.classList.add('is-won');
+      setTimeout(() => document.body.classList.add('is-round-over'), 1200);
     }
 
     let destroyed = false;
@@ -309,34 +463,92 @@
         metrics.layerWidth = desktop.getBoundingClientRect().right - layerRect.left;
       }
 
-      if (collected && !gameOver) {
-        scoreEl.classList.add('is-visible');
+      if (collected && collectedSince === null) {
+        collectedSince = ts;
+      }
 
-        if (ts - lastAsteroidTime > nextAsteroidDelay) {
-          spawnAsteroid(ts);
+      if (collected && !formationSpawned && collectedSince !== null && ts - collectedSince >= ALIEN_SPAWN_DELAY) {
+        spawnFormation();
+      }
+
+      if (collected) {
+        scoreEl.classList.add('is-visible');
+      }
+
+      let dirty = false;
+
+      if (collected && formationSpawned && !gameOver && !gameWon) {
+        if (ts - lastWalkTime > ALIEN_WALK_INTERVAL) {
+          walkFrame = walkFrame ? 0 : 1;
+          walkAliens(walkFrame);
+          lastWalkTime = ts;
         }
 
-        for (let a = asteroids.length - 1; a >= 0; a--) {
-          const rock = asteroids[a];
-          rock.y += rock.speed * dt;
+        const speedFactor = (ALIEN_ROWS * ALIEN_COLS) / Math.max(1, aliensAlive);
+        const alienSpeed = Math.min(ALIEN_MAX_SPEED, ALIEN_BASE_SPEED * speedFactor);
+        const gridWidth = ALIEN_COLS * ALIEN_CELL;
+        const nextFormationX = formationX + alienDir * alienSpeed * dt;
 
-          const dx = rock.x - shipX;
-          const dy = rock.y - shipY();
-          if (Math.sqrt(dx * dx + dy * dy) < rock.radius + shipRadius) {
-            gameOver = true;
-            ship.classList.add('is-hit');
-            setTimeout(() => document.body.classList.add('is-game-over'), 900);
-            break;
+        if (nextFormationX <= 0 || nextFormationX + gridWidth >= metrics.layerWidth) {
+          alienDir = -alienDir;
+          formationY += ALIEN_STEP_DOWN;
+        } else {
+          formationX = nextFormationX;
+        }
+        positionAliens();
+
+        if (formationY + ALIEN_ROWS * ALIEN_CELL >= shipY() - 10) {
+          triggerGameOver();
+        }
+
+        if (ts - lastAlienShotTime > nextAlienShotDelay) {
+          const shooters = aliens.filter((a) => a.alive);
+          if (shooters.length) {
+            const shooter = shooters[Math.floor(Math.random() * shooters.length)];
+            const pos = alienCenter(shooter);
+            const beamEl = document.createElement('div');
+            beamEl.className = 'invaders-alien-beam';
+            layer.appendChild(beamEl);
+            alienBeams.push({ el: beamEl, x: pos.x, y: pos.y });
+          }
+          lastAlienShotTime = ts;
+          nextAlienShotDelay = ALIEN_FIRE_MIN + Math.random() * (ALIEN_FIRE_MAX - ALIEN_FIRE_MIN);
+        }
+
+        for (let i = alienBeams.length - 1; i >= 0; i--) {
+          const beam = alienBeams[i];
+          beam.y += ALIEN_BEAM_SPEED * dt;
+
+          if (beam.y >= metrics.logoTop && beam.y <= metrics.logoBottom) {
+            const row = Math.floor((beam.y - metrics.logoTop) / metrics.charH);
+            const col = Math.floor((beam.x - metrics.logoLeft) / metrics.charW);
+            if (row >= 0 && row < rows && col >= 0 && col < cols) {
+              if (destroyAt(row, col)) {
+                dirty = true;
+                beam.el.remove();
+                alienBeams.splice(i, 1);
+                continue;
+              }
+            }
           }
 
-          if (rock.y - rock.radius > metrics.layerHeight) {
-            rock.el.remove();
-            asteroids.splice(a, 1);
+          const dx = beam.x - shipX;
+          const dy = beam.y - shipY();
+          if (Math.sqrt(dx * dx + dy * dy) < shipRadius + 3) {
+            beam.el.remove();
+            alienBeams.splice(i, 1);
+            triggerGameOver();
             continue;
           }
 
-          rock.el.style.left = rock.x + 'px';
-          rock.el.style.top = rock.y + 'px';
+          if (beam.y > metrics.layerHeight) {
+            beam.el.remove();
+            alienBeams.splice(i, 1);
+            continue;
+          }
+
+          beam.el.style.left = beam.x + 'px';
+          beam.el.style.top = beam.y + 'px';
         }
       }
 
@@ -370,7 +582,6 @@
         positionBtn();
       }
 
-      let dirty = false;
       for (let i = beams.length - 1; i >= 0; i--) {
         const beam = beams[i];
         beam.y -= beamSpeed * dt;
@@ -382,22 +593,25 @@
           continue;
         }
 
-        let hitAsteroid = -1;
-        for (let a = 0; a < asteroids.length; a++) {
-          const rock = asteroids[a];
-          const dx = rock.x - beam.x;
-          const dy = rock.y - beam.y;
-          if (Math.sqrt(dx * dx + dy * dy) < rock.radius + 3) {
-            hitAsteroid = a;
+        let hitAlien = -1;
+        for (let a = 0; a < aliens.length; a++) {
+          if (!aliens[a].alive) continue;
+          const pos = alienCenter(aliens[a]);
+          const dx = pos.x - beam.x;
+          const dy = pos.y - beam.y;
+          if (Math.sqrt(dx * dx + dy * dy) < ALIEN_SIZE / 2) {
+            hitAlien = a;
             break;
           }
         }
-        if (hitAsteroid !== -1) {
-          addScore(asteroids[hitAsteroid].value);
-          asteroids[hitAsteroid].el.remove();
-          asteroids.splice(hitAsteroid, 1);
+        if (hitAlien !== -1) {
+          aliens[hitAlien].alive = false;
+          aliens[hitAlien].el.remove();
+          aliensAlive--;
+          addScore(ALIEN_VALUE);
           beam.el.remove();
           beams.splice(i, 1);
+          if (aliensAlive <= 0) triggerWin();
           continue;
         }
 

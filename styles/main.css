@@ -299,11 +299,12 @@ body.is-downloading .desktop {
   border-radius: 2px;
   backdrop-filter: blur(12px) saturate(140%);
   box-shadow: 0 30px 60px -20px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255, 255, 255, 0.02);
-  transition: background 1s ease, border-color 1s ease 1s, border-radius 1s ease 1s;
+  transition: background 1s ease, border-color 1s ease 1s, border-radius 1s ease 1s, box-shadow 1s ease 1s;
 }
 
 body.is-downloading .window-chrome {
   background: var(--download-bg);
+  box-shadow: none;
 }
 
 body.is-downloading .window.left {

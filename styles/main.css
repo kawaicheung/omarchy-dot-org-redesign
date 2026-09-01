@@ -338,6 +338,15 @@ body.is-downloading .right-text {
   filter: blur(2px);
 }
 
+body.is-downloading .logo {
+  position: fixed;
+  top: 70%;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 7;
+  transition: transform 1s ease;
+}
+
 .download-status {
   position: fixed;
   top: calc(var(--topbar-h) + var(--gap) * 2);

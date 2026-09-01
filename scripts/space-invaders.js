@@ -13,6 +13,8 @@
     const desktop = document.querySelector('.desktop');
     if (!container || !logo) return;
 
+    const logoHome = logo.parentElement;
+
     const layer = document.createElement('div');
     layer.className = 'invaders-layer';
     container.appendChild(layer);
@@ -110,7 +112,27 @@
       if (downloadBtn.dataset.downloading === 'true') return;
       downloadBtn.dataset.downloading = 'true';
       if (downloadStatus) downloadStatus.classList.add('is-visible');
+
+      const beforeRect = logo.getBoundingClientRect();
       document.body.classList.add('is-downloading');
+      document.body.appendChild(logo);
+      measure();
+
+      const panel = document.querySelector('.launcher .panel');
+      if (panel) {
+        logo.style.top = panel.getBoundingClientRect().bottom + 40 + 'px';
+      }
+
+      const afterRect = logo.getBoundingClientRect();
+      const dx = beforeRect.left + beforeRect.width / 2 - (afterRect.left + afterRect.width / 2);
+      const dy = beforeRect.top - afterRect.top;
+
+      logo.style.transition = 'none';
+      logo.style.transform = `translate(calc(-50% + ${dx}px), ${dy}px)`;
+      logo.getBoundingClientRect();
+      logo.style.transition = '';
+      logo.style.transform = '';
+
       explodeDownloadButton();
     });
 
@@ -266,46 +288,48 @@
         ],
       },
       {
+        // Windows logo: four squares, with a subtle flicker in the gap.
         frames: [
           [
-            '00010000001000',
-            '00001000010000',
-            '00011111111000',
-            '00111111111100',
-            '01111111111110',
-            '01011111110110',
-            '01100000000110',
+            '11111100111111',
+            '11111100111111',
+            '00111100111100',
+            '11000000000011',
+            '00111100111100',
+            '11111100111111',
+            '11111100111111',
           ],
           [
-            '00010000001000',
-            '10001000010001',
-            '10011111111001',
-            '10111111111101',
-            '01111111111110',
-            '00110000001100',
-            '00011000011000',
+            '11111100111111',
+            '11111100111111',
+            '11111100111111',
+            '00000000000000',
+            '11111100111111',
+            '11111100111111',
+            '11111100111111',
           ],
         ],
       },
       {
+        // Apple logo: twin-lobe top with a bite notch, leaf sways slightly.
         frames: [
           [
-            '00000111100000',
-            '00011111111000',
+            '00000011000000',
+            '00111100111100',
+            '01111111111000',
+            '01111111111110',
             '00111111111100',
-            '01110110110111',
-            '11111111111111',
-            '00011011011000',
-            '00110000001100',
+            '00011111111000',
+            '00001111110000',
           ],
           [
-            '00000111100000',
-            '00011111111000',
+            '00000011000000',
             '00111111111100',
-            '01110110110111',
-            '11111111111111',
-            '00110000001100',
-            '01100000000110',
+            '01111111111000',
+            '01111111111000',
+            '01111111111110',
+            '00111111111100',
+            '00001111110000',
           ],
         ],
       },
@@ -442,6 +466,8 @@
           destroyed = true;
           layer.remove();
           scoreEl.remove();
+          logoHome.prepend(logo);
+          document.body.classList.remove('is-downloading', 'is-round-over');
           return;
         }
       }

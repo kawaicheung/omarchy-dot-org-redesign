@@ -10,6 +10,7 @@
     const container = document.querySelector('.window.left');
     const logo = document.querySelector('.logo');
     const hint = document.querySelector('.controls-hint');
+    const desktop = document.querySelector('.desktop');
     if (!container || !logo) return;
 
     const layer = document.createElement('div');
@@ -36,6 +37,50 @@
     container.appendChild(downloadBtn);
 
     const downloadStatus = document.querySelector('.download-status');
+
+    const DIGIT_GLYPHS = {
+      '0': ['111', '1 1', '1 1', '1 1', '111'],
+      '1': [' 1 ', '11 ', ' 1 ', ' 1 ', '111'],
+      '2': ['111', '  1', '111', '1  ', '111'],
+      '3': ['111', '  1', '111', '  1', '111'],
+      '4': ['1 1', '1 1', '111', '  1', '  1'],
+      '5': ['111', '1  ', '111', '  1', '111'],
+      '6': ['111', '1  ', '111', '1 1', '111'],
+      '7': ['111', '  1', '  1', '  1', '  1'],
+      '8': ['111', '1 1', '111', '1 1', '111'],
+      '9': ['111', '1 1', '111', '  1', '111'],
+    };
+
+    function buildPixelGrid(className, cols, rows, bitmap) {
+      const grid = document.createElement('div');
+      grid.className = className;
+      for (let row = 0; row < rows; row++) {
+        for (let col = 0; col < cols; col++) {
+          const px = document.createElement('span');
+          px.className = 'px' + (bitmap[row][col] !== ' ' && bitmap[row][col] !== '0' ? ' on' : '');
+          grid.appendChild(px);
+        }
+      }
+      return grid;
+    }
+
+    const scoreEl = document.createElement('div');
+    scoreEl.className = 'score';
+    (desktop || container).appendChild(scoreEl);
+
+    let score = 0;
+    function renderScore(n) {
+      scoreEl.replaceChildren();
+      String(n).split('').forEach((d) => {
+        scoreEl.appendChild(buildPixelGrid('digit', 3, 5, DIGIT_GLYPHS[d] || DIGIT_GLYPHS['0']));
+      });
+    }
+    renderScore(0);
+
+    function addScore(points) {
+      score += points;
+      renderScore(score);
+    }
 
     function explodeDownloadButton() {
       const btnRect = downloadBtn.getBoundingClientRect();
@@ -182,6 +227,7 @@
     let lastShotTime = 0;
 
     function fire(now) {
+      if (gameOver) return;
       if (now - lastShotTime < shotCooldown) return;
       if (beams.length >= 6) return;
       lastShotTime = now;
@@ -196,17 +242,104 @@
       });
     }
 
+    const ASTEROID_BITMAP = [
+      '0110',
+      '1111',
+      '1101',
+      '0110',
+    ];
+
+    const shipRadius = 10;
+    const ASTEROID_TYPES = [
+      { size: 'small', px: 11, value: 10, speed: 150 },
+      { size: 'medium', px: 17, value: 20, speed: 105 },
+      { size: 'large', px: 27, value: 50, speed: 70 },
+    ];
+
+    const asteroids = [];
+    let gameOver = false;
+    let lastAsteroidTime = 0;
+    let nextAsteroidDelay = 900 + Math.random() * 900;
+
+    function spawnAsteroid(now) {
+      const type = ASTEROID_TYPES[Math.floor(Math.random() * ASTEROID_TYPES.length)];
+      const el = buildPixelGrid('asteroid ' + type.size, 4, 4, ASTEROID_BITMAP);
+      layer.appendChild(el);
+      asteroids.push({
+        el,
+        x: type.px / 2 + Math.random() * Math.max(0, metrics.layerWidth - type.px),
+        y: -type.px,
+        radius: type.px / 2,
+        value: type.value,
+        speed: type.speed,
+      });
+      lastAsteroidTime = now;
+      nextAsteroidDelay = 900 + Math.random() * 900;
+    }
+
+    let destroyed = false;
     let lastTime = null;
     function loop(ts) {
+      if (destroyed) return;
+
+      if (document.body.classList.contains('is-downloading')) {
+        const movementPanel = document.querySelector('.right-panel.movement');
+        if (!movementPanel || !movementPanel.classList.contains('is-active')) {
+          destroyed = true;
+          layer.remove();
+          scoreEl.remove();
+          return;
+        }
+      }
+
       if (lastTime === null) lastTime = ts;
       const dt = (ts - lastTime) / 1000;
       lastTime = ts;
 
-      if (moveLeft) shipX -= shipSpeed * dt;
-      if (moveRight) shipX += shipSpeed * dt;
-      updateShipPosition();
+      if (!gameOver) {
+        if (moveLeft) shipX -= shipSpeed * dt;
+        if (moveRight) shipX += shipSpeed * dt;
+        updateShipPosition();
+      }
 
       const collected = downloadBtn.dataset.downloading === 'true';
+
+      if (collected && desktop) {
+        const layerRect = layer.getBoundingClientRect();
+        metrics.layerWidth = desktop.getBoundingClientRect().right - layerRect.left;
+      }
+
+      if (collected && !gameOver) {
+        scoreEl.classList.add('is-visible');
+
+        if (ts - lastAsteroidTime > nextAsteroidDelay) {
+          spawnAsteroid(ts);
+        }
+
+        for (let a = asteroids.length - 1; a >= 0; a--) {
+          const rock = asteroids[a];
+          rock.y += rock.speed * dt;
+
+          const dx = rock.x - shipX;
+          const dy = rock.y - shipY();
+          if (Math.sqrt(dx * dx + dy * dy) < rock.radius + shipRadius) {
+            gameOver = true;
+            ship.classList.add('is-hit');
+            setTimeout(() => document.body.classList.add('is-game-over'), 900);
+            break;
+          }
+
+          if (rock.y - rock.radius > metrics.layerHeight) {
+            rock.el.remove();
+            asteroids.splice(a, 1);
+            continue;
+          }
+
+          rock.el.style.left = rock.x + 'px';
+          rock.el.style.top = rock.y + 'px';
+        }
+      }
+
       if (!collected) {
         const nextX = btnX + btnVX * dt;
         if (nextX <= 0) {
@@ -249,6 +382,25 @@
           continue;
         }
 
+        let hitAsteroid = -1;
+        for (let a = 0; a < asteroids.length; a++) {
+          const rock = asteroids[a];
+          const dx = rock.x - beam.x;
+          const dy = rock.y - beam.y;
+          if (Math.sqrt(dx * dx + dy * dy) < rock.radius + 3) {
+            hitAsteroid = a;
+            break;
+          }
+        }
+        if (hitAsteroid !== -1) {
+          addScore(asteroids[hitAsteroid].value);
+          asteroids[hitAsteroid].el.remove();
+          asteroids.splice(hitAsteroid, 1);
+          beam.el.remove();
+          beams.splice(i, 1);
+          continue;
+        }
+
         if (beam.y <= -20) {
           beam.el.remove();
           beams.splice(i, 1);
@@ -278,6 +430,7 @@
     requestAnimationFrame(loop);
 
     window.addEventListener('keydown', (e) => {
+      if (destroyed) return;
       if (isTypingTarget(document.activeElement)) return;
       if (e.code === 'ArrowLeft') {
         moveLeft = true;

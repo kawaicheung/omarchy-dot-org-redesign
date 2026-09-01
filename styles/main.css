@@ -307,6 +307,8 @@ body.is-downloading .window-chrome {
 }
 
 body.is-downloading .window.left {
+  z-index: 5;
+  overflow: visible;
   border-right-color: transparent;
   border-top-right-radius: 0;
   border-bottom-right-radius: 0;
@@ -370,6 +372,27 @@ body.is-downloading .right-panel {
     height: 100%;
     display: block;
   }
+
+  &.is-hit {
+    color: #ff4444;
+    animation: pulse-red 0.3s ease-in-out 3;
+  }
+}
+
+@keyframes pulse-red {
+  0%, 100% {
+    filter: drop-shadow(0 0 6px #ff4444);
+  }
+  50% {
+    filter: drop-shadow(0 0 14px #ff4444);
+  }
+}
+
+body.is-game-over .invaders-ship,
+body.is-game-over .score,
+body.is-game-over .asteroid {
+  opacity: 0;
+  transition: opacity 0.6s ease;
 }
 
 .invaders-beam {
@@ -379,6 +402,68 @@ body.is-downloading .right-panel {
   background: var(--logo-green);
   box-shadow: 0 0 6px var(--logo-green);
   transform: translate(-50%, -100%);
+}
+
+.asteroid {
+  position: absolute;
+  display: grid;
+  grid-template-columns: repeat(4, var(--px-size));
+  grid-template-rows: repeat(4, var(--px-size));
+  gap: 0;
+  transform: translate(-50%, -50%);
+
+  .px {
+    background: transparent;
+
+    &.on {
+      background: var(--logo-green);
+      box-shadow: 0 0 4px var(--logo-green);
+    }
+  }
+
+  &.small {
+    --px-size: 2px;
+  }
+
+  &.medium {
+    --px-size: 3.5px;
+  }
+
+  &.large {
+    --px-size: 6px;
+  }
+}
+
+.score {
+  position: fixed;
+  top: calc(var(--topbar-h) + var(--gap));
+  right: calc(var(--gap) * 2);
+  z-index: 6;
+  display: flex;
+  gap: 3px;
+  padding: var(--gap);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+
+  &.is-visible {
+    opacity: 1;
+  }
+
+  .digit {
+    display: grid;
+    grid-template-columns: repeat(3, clamp(3px, 0.28vw, 4px));
+    grid-template-rows: repeat(5, clamp(3px, 0.28vw, 4px));
+    gap: 0;
+  }
+
+  .px {
+    background: transparent;
+
+    &.on {
+      background: var(--logo-green);
+    }
+  }
 }
 
 .download-btn {

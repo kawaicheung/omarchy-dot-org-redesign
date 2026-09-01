@@ -65,6 +65,7 @@
       if (downloadBtn.dataset.downloading === 'true') return;
       downloadBtn.dataset.downloading = 'true';
       if (downloadStatus) downloadStatus.classList.add('is-visible');
+      document.body.classList.add('is-downloading');
       explodeDownloadButton();
     });
 

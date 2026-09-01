@@ -5,6 +5,7 @@
   --text-dim: #9aa0b4;
   --panel-bg: rgba(16, 17, 26, 0.68);
   --panel-border: rgba(222, 240, 200, 0.35);
+  --download-bg: rgba(50, 8, 90, 0.85);
   --gap: 8px;
   --topbar-h: 34px;
   --footer-h: 34px;
@@ -184,6 +185,11 @@ body {
   display: flex;
   gap: var(--gap);
   z-index: 1;
+  transition: gap 1s ease 1s;
+}
+
+body.is-downloading .desktop {
+  gap: 0;
 }
 
 /* ---------- footer ---------- */
@@ -293,27 +299,47 @@ body {
   border-radius: 2px;
   backdrop-filter: blur(12px) saturate(140%);
   box-shadow: 0 30px 60px -20px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255, 255, 255, 0.02);
+  transition: background 1s ease, border-color 1s ease 1s, border-radius 1s ease 1s;
+}
+
+body.is-downloading .window-chrome {
+  background: var(--download-bg);
+}
+
+body.is-downloading .window.left {
+  border-right-color: transparent;
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+}
+
+body.is-downloading .right-panel {
+  border-left-color: transparent;
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
 }
 
 .download-status {
-  position: absolute;
-  top: calc(var(--gap) * 1.5);
-  right: calc(var(--gap) * 1.5);
+  position: fixed;
+  top: calc(var(--topbar-h) + var(--gap));
+  left: 50%;
+  margin-top: var(--gap);
   z-index: 6;
   padding: 8px 14px;
   font-family: var(--font-mono);
   font-size: 13px;
   color: var(--logo-green);
-  background: transparent;
+  background: var(--panel-bg);
   border: 2px solid var(--logo-green);
   border-radius: 2px;
   white-space: nowrap;
   opacity: 0;
   pointer-events: none;
-  transition: opacity 0.2s ease;
+  transform: translate(-50%, 0);
+  transition: opacity 0.6s ease 2.5s, transform 0.6s ease 2.5s;
 
   &.is-visible {
     opacity: 1;
+    transform: translate(-50%, 10vh);
   }
 
   .arrow {
